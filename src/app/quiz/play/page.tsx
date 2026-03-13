@@ -1,6 +1,5 @@
 'use client'
-export const dynamic = 'force-dynamic'
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Question, QuizSettings } from '@/types'
 import { BIBLE_BOOKS, QUIZ_TOPICS } from '@/lib/bible-data'
@@ -11,7 +10,7 @@ type Phase = 'loading' | 'playing' | 'review' | 'done'
 
 const LETTERS = ['А', 'Б', 'В', 'Г']
 
-export default function QuizPlayPage() {
+function QuizPlayContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -314,5 +313,13 @@ export default function QuizPlayPage() {
         )}
       </div>
     </main>
+  )
+}
+
+export default function QuizPlayPage() {
+  return (
+    <Suspense>
+      <QuizPlayContent />
+    </Suspense>
   )
 }
