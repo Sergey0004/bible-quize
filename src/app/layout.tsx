@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   title: 'BibleQuiz — Пізнай Слово Боже',
   description: 'Тренування та змагання зі знань Біблії',
   manifest: '/manifest.json',
+}
+
+export const viewport = {
   themeColor: '#faf8f3',
 }
 
