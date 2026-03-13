@@ -1,0 +1,14 @@
+{
+  "name": "BibleQuiz — Пізнай Слово Боже",
+  "short_name": "BibleQuiz",
+  "description": "Тренування та змагання зі знань Біблії",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0c1a",
+  "theme_color": "#1a1625",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
