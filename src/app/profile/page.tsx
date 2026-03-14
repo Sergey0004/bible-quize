@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
   const [recentResults, setRecentResults] = useState<any[]>([])
+  const [challenges, setChallenges] = useState<any[]>([])
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -36,6 +37,13 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) return
+    supabase.from('challenges')
+      .select('*')
+      .or(`challenger_id.eq.${user.id},challenged_id.eq.${user.id}`)
+      .order('created_at', { ascending: false })
+      .limit(20)
+      .then(({ data }) => setChallenges(data || []))
+
     Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).single(),
       supabase.from('quiz_results').select('*').eq('user_id', user.id)
@@ -202,6 +210,57 @@ export default function ProfilePage() {
         <Link href="/quiz" className="btn-gold block text-center py-3 rounded-xl text-sm mb-8">
           Нове тренування
         </Link>
+
+        {/* Challenges */}
+        {challenges.length > 0 && (
+          <section className="mb-8">
+            <h2 className="font-display text-xs tracking-widest uppercase text-amber-700 mb-4">
+              Виклики ⚔️
+            </h2>
+            <div className="space-y-3">
+              {challenges.map(c => {
+                const isChallenger = c.challenger_id === user?.id
+                const opponent = isChallenger ? c.challenged_email : c.challenger_email
+                const statusLabel: Record<string, string> = {
+                  pending: 'Очікує відповіді',
+                  accepted: 'Прийнято',
+                  declined: 'Відхилено',
+                  completed: 'Завершено',
+                }
+                const statusColor: Record<string, string> = {
+                  pending: 'text-amber-600 bg-amber-50 border-amber-200',
+                  accepted: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+                  declined: 'text-red-500 bg-red-50 border-red-200',
+                  completed: 'text-stone-500 bg-stone-50 border-stone-200',
+                }
+                return (
+                  <div key={c.id} className="glass-card p-4 flex items-center gap-4">
+                    <div className="text-2xl">{isChallenger ? '⚔️' : '🛡️'}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-stone-800 text-sm font-medium">
+                        {isChallenger ? `Виклик → ${opponent}` : `Виклик від ${c.challenger_name}`}
+                      </div>
+                      <div className="text-stone-400 text-xs mt-0.5">
+                        {c.difficulty} · {c.question_count} питань
+                      </div>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-full border flex-shrink-0 ${statusColor[c.status]}`}>
+                      {statusLabel[c.status]}
+                    </span>
+                    {isChallenger && c.status === 'accepted' && (
+                      <Link
+                        href={`/quiz/play?difficulty=${c.difficulty}&mode=topic&count=${c.question_count}${c.topic_id ? `&topicId=${c.topic_id}` : ''}&challengeId=${c.id}`}
+                        className="text-xs px-3 py-1 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition-colors flex-shrink-0"
+                      >
+                        Грати ⚔️
+                      </Link>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Recent results */}
         <section>

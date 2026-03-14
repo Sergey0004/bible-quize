@@ -50,7 +50,7 @@ export default async function HomePage() {
             href="/register"
             className="btn-gold px-8 py-4 rounded-xl text-lg inline-block text-center"
           >
-            Почати безкоштовно
+            Зареєструватись
           </Link>
           <Link
             href="/login"

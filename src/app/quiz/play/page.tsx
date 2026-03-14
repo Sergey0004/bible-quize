@@ -14,6 +14,8 @@ function QuizPlayContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
+  const challengeId = searchParams.get('challengeId') || undefined
+
   const settings: QuizSettings = {
     difficulty: (searchParams.get('difficulty') as any) || 'medium',
     mode: (searchParams.get('mode') as any) || 'topic',
@@ -39,6 +41,22 @@ function QuizPlayContent() {
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token
       if (!token) { setError('Необхідна авторизація'); return }
+
+      // Duel mode: fetch shared questions from challenge record
+      if (challengeId) {
+        const { data: challenge } = await supabase
+          .from('challenges')
+          .select('questions')
+          .eq('id', challengeId)
+          .single()
+
+        if (challenge?.questions?.length) {
+          setQuestions(challenge.questions)
+          setAnswers(new Array(challenge.questions.length).fill(null))
+          setPhase('playing')
+          return
+        }
+      }
 
       const res = await fetch('/api/generate-questions', {
         method: 'POST',
